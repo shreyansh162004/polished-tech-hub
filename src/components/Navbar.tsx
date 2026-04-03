@@ -33,8 +33,6 @@ const Navbar = () => {
     const idx = hoveredIdx !== null ? hoveredIdx : activeIdx;
     const el = navRefs.current[idx];
     if (!el) return { width: 0, x: 0 };
-    const parent = el.parentElement;
-    if (!parent) return { width: 0, x: 0 };
     return {
       width: el.offsetWidth,
       x: el.offsetLeft,
@@ -54,21 +52,25 @@ const Navbar = () => {
     >
       <div className="container-tight flex items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo */}
-        <Link to="/" className="font-heading font-bold text-lg tracking-tight text-foreground relative z-10">
-          KDY<span className="text-accent">.</span>
+        <Link to="/" className="relative z-10 flex items-center gap-1.5">
+          <span className={`font-heading font-bold text-xl tracking-tight transition-colors duration-300 ${
+            scrolled ? "text-foreground" : "text-primary-foreground"
+          }`}>
+            KDY
+          </span>
+          <span className="text-accent font-heading font-bold text-xl">InfoTech</span>
         </Link>
 
         {/* Center pill nav */}
         <div className="hidden md:flex items-center">
           <div
             className={`relative flex items-center gap-1 px-1.5 py-1.5 rounded-full transition-all duration-500 ${
-              scrolled ? "glass" : "bg-foreground/5 backdrop-blur-xl"
+              scrolled ? "glass" : "bg-primary-foreground/10 backdrop-blur-xl border border-primary-foreground/10"
             }`}
             onMouseLeave={() => setHoveredIdx(null)}
           >
-            {/* Sliding indicator */}
             <motion.div
-              className="absolute top-1.5 bottom-1.5 rounded-full bg-accent/15"
+              className={`absolute top-1.5 bottom-1.5 rounded-full ${scrolled ? "bg-accent/15" : "bg-primary-foreground/15"}`}
               animate={{ x: indicator.x, width: indicator.width }}
               transition={{ type: "spring", stiffness: 350, damping: 30 }}
               style={{ left: 0 }}
@@ -80,9 +82,9 @@ const Navbar = () => {
                 ref={(el) => { navRefs.current[i] = el; }}
                 onMouseEnter={() => setHoveredIdx(i)}
                 className={`relative z-10 text-sm font-medium px-5 py-2 rounded-full transition-colors duration-200 ${
-                  location.pathname === link.to
-                    ? "text-accent"
-                    : "text-muted-foreground hover:text-foreground"
+                  scrolled
+                    ? (location.pathname === link.to ? "text-accent" : "text-muted-foreground hover:text-foreground")
+                    : (location.pathname === link.to ? "text-accent" : "text-primary-foreground/70 hover:text-primary-foreground")
                 }`}
               >
                 {link.label}
@@ -95,7 +97,7 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-3">
           <Link to="/cart" className="relative group p-2 rounded-full hover:bg-foreground/5 transition-colors">
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
-              <ShoppingCart className="w-5 h-5 text-foreground" />
+              <ShoppingCart className={`w-5 h-5 transition-colors duration-300 ${scrolled ? "text-foreground" : "text-primary-foreground"}`} />
               <AnimatePresence>
                 {totalItems > 0 && (
                   <motion.span
@@ -115,7 +117,7 @@ const Navbar = () => {
         {/* Mobile toggle */}
         <div className="flex md:hidden items-center gap-3">
           <Link to="/cart" className="relative p-2">
-            <ShoppingCart className="w-5 h-5 text-foreground" />
+            <ShoppingCart className={`w-5 h-5 transition-colors duration-300 ${scrolled ? "text-foreground" : "text-primary-foreground"}`} />
             {totalItems > 0 && (
               <span className="absolute top-0 right-0 bg-accent text-accent-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                 {totalItems}
@@ -123,7 +125,7 @@ const Navbar = () => {
             )}
           </Link>
           <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-full hover:bg-foreground/5 transition-colors">
-            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileOpen ? <X className={`w-5 h-5 ${scrolled ? "text-foreground" : "text-primary-foreground"}`} /> : <Menu className={`w-5 h-5 ${scrolled ? "text-foreground" : "text-primary-foreground"}`} />}
           </button>
         </div>
       </div>
