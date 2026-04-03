@@ -1,12 +1,14 @@
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "react-router-dom";
 import { MessageCircle, ArrowRight, Star, Shield, Truck, RefreshCw, ChevronRight } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import InstagramSection from "@/components/InstagramSection";
 import { products } from "@/data/products";
+import { useRef } from "react";
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (i: number = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.6 } }),
+  hidden: { opacity: 0, y: 40 },
+  visible: (i: number = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, duration: 0.7, ease: [0.22, 1, 0.36, 1] as const } }),
 };
 
 const stats = [
@@ -25,26 +27,45 @@ const trustPoints = [
 
 const Home = () => {
   const featured = products.slice(0, 4);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-hidden">
       {/* Hero */}
-      <section className="relative min-h-[90vh] flex items-center bg-gradient-to-br from-primary via-primary to-surface-dark overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 right-20 w-96 h-96 bg-accent rounded-full blur-3xl" />
-          <div className="absolute bottom-20 left-20 w-72 h-72 bg-accent/50 rounded-full blur-3xl" />
+      <section ref={heroRef} className="relative min-h-screen flex items-center bg-gradient-to-br from-primary via-primary to-surface-dark overflow-hidden">
+        <div className="absolute inset-0">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 80, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-accent/8 rounded-full blur-3xl"
+          />
+          <motion.div
+            animate={{ rotate: -360 }}
+            transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+            className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl"
+          />
+          {/* Grid pattern */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{
+            backgroundImage: "linear-gradient(hsl(var(--accent)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--accent)) 1px, transparent 1px)",
+            backgroundSize: "60px 60px"
+          }} />
         </div>
-        <div className="container-tight px-4 sm:px-6 lg:px-8 relative z-10">
+
+        <motion.div style={{ y: heroY, opacity: heroOpacity, scale: heroScale }} className="container-tight px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl">
             <motion.div initial="hidden" animate="visible" variants={fadeUp} custom={0}>
-              <span className="inline-flex items-center gap-2 bg-accent/20 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-6">
+              <span className="inline-flex items-center gap-2 bg-accent/15 text-accent px-4 py-1.5 rounded-full text-sm font-medium mb-8 border border-accent/20">
                 <span className="w-2 h-2 bg-accent rounded-full animate-pulse" />
                 Trusted by 5000+ customers
               </span>
             </motion.div>
             <motion.h1
               initial="hidden" animate="visible" variants={fadeUp} custom={1}
-              className="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-primary-foreground leading-[1.1] mb-6"
+              className="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-primary-foreground leading-[1.05] mb-6 tracking-tight"
             >
               Premium Refurbished
               <br />
@@ -52,7 +73,7 @@ const Home = () => {
             </motion.h1>
             <motion.p
               initial="hidden" animate="visible" variants={fadeUp} custom={2}
-              className="text-primary-foreground/70 text-lg md:text-xl max-w-xl mb-8 leading-relaxed"
+              className="text-primary-foreground/60 text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
             >
               Get top-brand laptops at up to 60% off — tested, certified, and backed by our 6-month warranty.
             </motion.p>
@@ -61,42 +82,58 @@ const Home = () => {
               className="flex flex-wrap gap-4"
             >
               <motion.a
-                whileHover={{ scale: 1.04 }}
+                whileHover={{ scale: 1.04, boxShadow: "0 0 30px hsl(152 68% 42% / 0.3)" }}
                 whileTap={{ scale: 0.97 }}
                 href="https://wa.me/919711127853?text=Hi%20KDY%20InfoTech!%20I'm%20interested%20in%20your%20refurbished%20laptops."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-7 py-3.5 rounded-full font-semibold text-sm hover:brightness-110 transition-all shadow-lg shadow-accent/25"
+                className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-8 py-4 rounded-full font-semibold text-sm transition-all glow-accent"
               >
                 <MessageCircle className="w-5 h-5" /> Chat on WhatsApp
               </motion.a>
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                 <Link
                   to="/products"
-                  className="inline-flex items-center gap-2 bg-primary-foreground/10 text-primary-foreground px-7 py-3.5 rounded-full font-semibold text-sm border border-primary-foreground/20 hover:bg-primary-foreground/20 transition-all"
+                  className="inline-flex items-center gap-2 bg-primary-foreground/10 text-primary-foreground px-8 py-4 rounded-full font-semibold text-sm border border-primary-foreground/15 hover:bg-primary-foreground/15 transition-all backdrop-blur-sm"
                 >
                   Explore Products <ArrowRight className="w-4 h-4" />
                 </Link>
               </motion.div>
             </motion.div>
           </div>
-        </div>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <motion.div
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="w-6 h-10 rounded-full border-2 border-primary-foreground/20 flex justify-center pt-2"
+          >
+            <div className="w-1 h-2 bg-primary-foreground/40 rounded-full" />
+          </motion.div>
+        </motion.div>
       </section>
 
-      {/* Stats */}
-      <section className="bg-card border-b border-border">
-        <div className="container-tight px-4 sm:px-6 lg:px-8 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      {/* Stats - scroll reveal */}
+      <section className="bg-card border-b border-border relative">
+        <div className="container-tight px-4 sm:px-6 lg:px-8 py-12">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ delay: i * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                 className="text-center"
               >
-                <div className="font-heading font-bold text-2xl md:text-3xl text-foreground">{stat.value}</div>
+                <div className="font-heading font-bold text-3xl md:text-4xl text-foreground tracking-tight">{stat.value}</div>
                 <div className="text-sm text-muted-foreground mt-1">{stat.label}</div>
               </motion.div>
             ))}
@@ -105,27 +142,34 @@ const Home = () => {
       </section>
 
       {/* Trust */}
-      <section className="section-padding bg-secondary/50">
+      <section className="section-padding bg-secondary/40">
         <div className="container-tight">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="text-center mb-12">
-            <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground">Why Choose Us</h2>
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-14"
+          >
+            <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground tracking-tight">Why Choose Us</h2>
             <p className="text-muted-foreground mt-3 max-w-lg mx-auto">We don't just sell laptops — we deliver trust, quality, and peace of mind.</p>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {trustPoints.map((item, i) => (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-card rounded-2xl p-6 text-center shadow-card hover:shadow-card-hover transition-shadow border border-border"
+                viewport={{ once: true, margin: "-60px" }}
+                transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ y: -6, transition: { duration: 0.25 } }}
+                className="bg-card rounded-2xl p-7 text-center shadow-card hover:shadow-card-hover transition-shadow border border-border group"
               >
-                <div className="w-12 h-12 bg-accent/10 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <div className="w-14 h-14 bg-accent/10 rounded-2xl flex items-center justify-center mx-auto mb-5 group-hover:bg-accent/20 transition-colors">
                   <item.icon className="w-6 h-6 text-accent" />
                 </div>
                 <h3 className="font-heading font-semibold text-foreground mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -135,18 +179,32 @@ const Home = () => {
       {/* Featured Products */}
       <section className="section-padding">
         <div className="container-tight">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="flex items-end justify-between mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="flex items-end justify-between mb-12"
+          >
             <div>
-              <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground">Featured Laptops</h2>
+              <h2 className="font-heading font-bold text-3xl md:text-4xl text-foreground tracking-tight">Featured Laptops</h2>
               <p className="text-muted-foreground mt-2">Handpicked deals on top brands</p>
             </div>
             <Link to="/products" className="hidden sm:inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline">
               View All <ChevronRight className="w-4 h-4" />
             </Link>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {featured.map((p, i) => (
-              <ProductCard key={p.id} product={p} index={i} />
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-40px" }}
+                transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <ProductCard product={p} index={i} />
+              </motion.div>
             ))}
           </div>
           <div className="sm:hidden mt-6 text-center">
@@ -155,32 +213,41 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Instagram */}
+      <InstagramSection variant="home" />
+
       {/* CTA Banner */}
       <section className="section-padding">
         <div className="container-tight">
           <motion.div
-            initial={{ opacity: 0, scale: 0.96 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-surface-dark p-8 md:p-14"
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-surface-dark p-10 md:p-16"
           >
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-accent rounded-full blur-3xl" />
+            <div className="absolute inset-0">
+              <div className="absolute top-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl" />
+              <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-3xl" />
+              <div className="absolute inset-0 opacity-[0.03]" style={{
+                backgroundImage: "linear-gradient(hsl(var(--accent)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--accent)) 1px, transparent 1px)",
+                backgroundSize: "40px 40px"
+              }} />
             </div>
             <div className="relative z-10 max-w-xl">
-              <h2 className="font-heading font-bold text-3xl md:text-4xl text-primary-foreground mb-4">
+              <h2 className="font-heading font-bold text-3xl md:text-4xl text-primary-foreground mb-4 tracking-tight">
                 Can't find what you need?
               </h2>
-              <p className="text-primary-foreground/70 mb-6">
+              <p className="text-primary-foreground/60 mb-8 leading-relaxed">
                 Tell us your requirements and we'll find the perfect laptop for you. Chat with us on WhatsApp for instant help!
               </p>
               <motion.a
-                whileHover={{ scale: 1.04 }}
+                whileHover={{ scale: 1.04, boxShadow: "0 0 30px hsl(152 68% 42% / 0.3)" }}
                 whileTap={{ scale: 0.97 }}
                 href="https://wa.me/919711127853?text=Hi!%20I%20need%20help%20finding%20a%20laptop."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-7 py-3.5 rounded-full font-semibold text-sm hover:brightness-110 transition-all shadow-lg shadow-accent/25"
+                className="inline-flex items-center gap-2 bg-accent text-accent-foreground px-8 py-4 rounded-full font-semibold text-sm transition-all glow-accent"
               >
                 <MessageCircle className="w-5 h-5" /> Chat Now
               </motion.a>

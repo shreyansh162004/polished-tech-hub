@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,44 +6,44 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 220 20% 10%;
+    --background: 220 20% 97%;
+    --foreground: 220 25% 8%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 220 25% 8%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 220 25% 8%;
 
-    --primary: 220 25% 12%;
+    --primary: 230 30% 10%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 220 20% 10%;
+    --secondary: 220 20% 94%;
+    --secondary-foreground: 220 25% 8%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 220 16% 93%;
+    --muted-foreground: 220 10% 44%;
 
-    --accent: 142 70% 45%;
+    --accent: 152 68% 42%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 142 70% 45%;
+    --border: 220 13% 90%;
+    --input: 220 13% 90%;
+    --ring: 152 68% 42%;
 
     --radius: 1rem;
 
-    /* Custom tokens */
-    --whatsapp: 142 70% 45%;
+    --whatsapp: 152 68% 42%;
     --whatsapp-foreground: 0 0% 100%;
-    --surface-dark: 220 25% 8%;
+    --surface-dark: 230 30% 6%;
     --surface-dark-foreground: 220 14% 96%;
     --surface-elevated: 0 0% 100%;
-    --gradient-start: 220 25% 12%;
-    --gradient-end: 230 30% 18%;
+    --gradient-start: 230 30% 10%;
+    --gradient-end: 240 35% 16%;
+    --neon-glow: 152 80% 55%;
 
     --sidebar-background: 0 0% 98%;
     --sidebar-foreground: 240 5.3% 26.1%;
@@ -52,7 +52,7 @@
     --sidebar-accent: 240 4.8% 95.9%;
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 142 70% 45%;
+    --sidebar-ring: 152 68% 42%;
   }
 }
 
@@ -72,18 +72,21 @@
 
 @layer utilities {
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-muted-foreground;
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-accent to-accent/60;
   }
   .glass {
-    @apply bg-white/70 backdrop-blur-xl border border-white/20 shadow-xl;
+    @apply bg-background/70 backdrop-blur-2xl border border-border/50 shadow-xl;
   }
   .glass-dark {
-    @apply bg-black/40 backdrop-blur-xl border border-white/10;
+    @apply bg-surface-dark/80 backdrop-blur-2xl border border-border/10;
   }
   .section-padding {
     @apply px-4 sm:px-6 lg:px-8 py-16 md:py-24;
   }
   .container-tight {
     @apply max-w-7xl mx-auto;
+  }
+  .glow-accent {
+    box-shadow: 0 0 30px -5px hsl(var(--neon-glow) / 0.3);
   }
 }
