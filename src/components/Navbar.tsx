@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const navLinks = [
   { to: "/", label: "Home" },
@@ -16,6 +16,10 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const navRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+
+  const activeIdx = navLinks.findIndex((l) => l.to === location.pathname);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -25,34 +29,71 @@ const Navbar = () => {
 
   useEffect(() => setMobileOpen(false), [location]);
 
+  const getIndicatorStyle = () => {
+    const idx = hoveredIdx !== null ? hoveredIdx : activeIdx;
+    const el = navRefs.current[idx];
+    if (!el) return { width: 0, x: 0 };
+    const parent = el.parentElement;
+    if (!parent) return { width: 0, x: 0 };
+    return {
+      width: el.offsetWidth,
+      x: el.offsetLeft,
+    };
+  };
+
+  const indicator = getIndicatorStyle();
+
   return (
     <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? "glass shadow-elevated" : "bg-transparent"
+      transition={{ type: "spring", stiffness: 120, damping: 22 }}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        scrolled ? "py-2" : "py-4"
       }`}
     >
-      <div className="container-tight flex items-center justify-between h-16 px-4 sm:px-6 lg:px-8">
-        <Link to="/" className="font-heading font-bold text-xl tracking-tight text-foreground">
-          KDY <span className="text-accent">InfoTech</span>
+      <div className="container-tight flex items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Logo */}
+        <Link to="/" className="font-heading font-bold text-lg tracking-tight text-foreground relative z-10">
+          KDY<span className="text-accent">.</span>
         </Link>
 
-        {/* Desktop */}
-        <div className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`text-sm font-medium transition-colors hover:text-accent ${
-                location.pathname === link.to ? "text-accent" : "text-muted-foreground"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-          <Link to="/cart" className="relative group">
+        {/* Center pill nav */}
+        <div className="hidden md:flex items-center">
+          <div
+            className={`relative flex items-center gap-1 px-1.5 py-1.5 rounded-full transition-all duration-500 ${
+              scrolled ? "glass" : "bg-foreground/5 backdrop-blur-xl"
+            }`}
+            onMouseLeave={() => setHoveredIdx(null)}
+          >
+            {/* Sliding indicator */}
+            <motion.div
+              className="absolute top-1.5 bottom-1.5 rounded-full bg-accent/15"
+              animate={{ x: indicator.x, width: indicator.width }}
+              transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              style={{ left: 0 }}
+            />
+            {navLinks.map((link, i) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                ref={(el) => { navRefs.current[i] = el; }}
+                onMouseEnter={() => setHoveredIdx(i)}
+                className={`relative z-10 text-sm font-medium px-5 py-2 rounded-full transition-colors duration-200 ${
+                  location.pathname === link.to
+                    ? "text-accent"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Right side */}
+        <div className="hidden md:flex items-center gap-3">
+          <Link to="/cart" className="relative group p-2 rounded-full hover:bg-foreground/5 transition-colors">
             <motion.div whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}>
               <ShoppingCart className="w-5 h-5 text-foreground" />
               <AnimatePresence>
@@ -61,7 +102,7 @@ const Navbar = () => {
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
-                    className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold"
+                    className="absolute -top-0.5 -right-0.5 bg-accent text-accent-foreground text-[10px] w-4.5 h-4.5 rounded-full flex items-center justify-center font-bold"
                   >
                     {totalItems}
                   </motion.span>
@@ -72,17 +113,17 @@ const Navbar = () => {
         </div>
 
         {/* Mobile toggle */}
-        <div className="flex md:hidden items-center gap-4">
-          <Link to="/cart" className="relative">
+        <div className="flex md:hidden items-center gap-3">
+          <Link to="/cart" className="relative p-2">
             <ShoppingCart className="w-5 h-5 text-foreground" />
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-accent text-accent-foreground text-xs w-5 h-5 rounded-full flex items-center justify-center font-semibold">
+              <span className="absolute top-0 right-0 bg-accent text-accent-foreground text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                 {totalItems}
               </span>
             )}
           </Link>
-          <button onClick={() => setMobileOpen(!mobileOpen)}>
-            {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 rounded-full hover:bg-foreground/5 transition-colors">
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
         </div>
       </div>
@@ -94,15 +135,17 @@ const Navbar = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden glass border-t border-border"
+            className="md:hidden mx-4 mt-2 glass rounded-2xl overflow-hidden"
           >
-            <div className="flex flex-col p-4 gap-3">
+            <div className="flex flex-col p-3 gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`text-sm font-medium py-2 ${
-                    location.pathname === link.to ? "text-accent" : "text-muted-foreground"
+                  className={`text-sm font-medium py-2.5 px-4 rounded-xl transition-colors ${
+                    location.pathname === link.to
+                      ? "text-accent bg-accent/10"
+                      : "text-muted-foreground hover:bg-foreground/5"
                   }`}
                 >
                   {link.label}
