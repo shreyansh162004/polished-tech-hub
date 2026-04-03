@@ -28,13 +28,20 @@ const trustPoints = [
 const Home = () => {
   const featured = products.slice(0, 4);
   const heroRef = useRef<HTMLDivElement>(null);
+  const pageRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
 
+  // Page-level scroll for background color morphing
+  const { scrollYProgress: pageScroll } = useScroll();
+  const bgHue = useTransform(pageScroll, [0, 0.3, 0.6, 1], [230, 220, 200, 240]);
+  const bgLightness = useTransform(pageScroll, [0, 0.3, 0.5, 0.8, 1], [10, 97, 95, 8, 97]);
+  const textIsDark = useTransform(pageScroll, (v) => v > 0.05 && v < 0.75);
+
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div ref={pageRef} className="min-h-screen overflow-hidden">
       {/* Hero */}
       <section ref={heroRef} className="relative min-h-screen flex items-center bg-gradient-to-br from-primary via-primary to-surface-dark overflow-hidden">
         <div className="absolute inset-0">
@@ -48,7 +55,6 @@ const Home = () => {
             transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
             className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-accent/5 rounded-full blur-3xl"
           />
-          {/* Grid pattern */}
           <div className="absolute inset-0 opacity-[0.03]" style={{
             backgroundImage: "linear-gradient(hsl(var(--accent)) 1px, transparent 1px), linear-gradient(90deg, hsl(var(--accent)) 1px, transparent 1px)",
             backgroundSize: "60px 60px"
@@ -63,14 +69,22 @@ const Home = () => {
                 Trusted by 5000+ customers
               </span>
             </motion.div>
+
             <motion.h1
+              initial="hidden" animate="visible" variants={fadeUp} custom={0.5}
+              className="font-heading font-extrabold text-5xl sm:text-6xl md:text-7xl lg:text-8xl text-primary-foreground leading-[1.02] mb-3 tracking-tight"
+            >
+              KDY <span className="text-accent">InfoTech</span>
+            </motion.h1>
+
+            <motion.h2
               initial="hidden" animate="visible" variants={fadeUp} custom={1}
-              className="font-heading font-bold text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-primary-foreground leading-[1.05] mb-6 tracking-tight"
+              className="font-heading font-bold text-2xl sm:text-3xl md:text-4xl text-primary-foreground/80 leading-tight mb-6 tracking-tight"
             >
               Premium Refurbished
               <br />
               <span className="text-accent">Laptops</span> & Electronics
-            </motion.h1>
+            </motion.h2>
             <motion.p
               initial="hidden" animate="visible" variants={fadeUp} custom={2}
               className="text-primary-foreground/60 text-lg md:text-xl max-w-xl mb-10 leading-relaxed"
@@ -103,7 +117,6 @@ const Home = () => {
           </div>
         </motion.div>
 
-        {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -120,8 +133,17 @@ const Home = () => {
         </motion.div>
       </section>
 
-      {/* Stats - scroll reveal */}
-      <section className="bg-card border-b border-border relative">
+      {/* Stats with scroll-triggered bg morph */}
+      <motion.section
+        className="border-b border-border relative transition-colors duration-700"
+        style={{
+          backgroundColor: useTransform(
+            pageScroll,
+            [0.05, 0.15],
+            ["hsl(0 0% 100%)", "hsl(220 20% 97%)"]
+          ),
+        }}
+      >
         <div className="container-tight px-4 sm:px-6 lg:px-8 py-12">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, i) => (
@@ -139,7 +161,7 @@ const Home = () => {
             ))}
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Trust */}
       <section className="section-padding bg-secondary/40">
@@ -176,8 +198,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="section-padding">
+      {/* Featured Products with dark section morph */}
+      <section className="section-padding bg-gradient-to-b from-background via-secondary/30 to-background">
         <div className="container-tight">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -216,7 +238,7 @@ const Home = () => {
       {/* Instagram */}
       <InstagramSection variant="home" />
 
-      {/* CTA Banner */}
+      {/* CTA Banner - dark morph */}
       <section className="section-padding">
         <div className="container-tight">
           <motion.div
